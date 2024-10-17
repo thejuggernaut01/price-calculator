@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"time"
 )
 
 type FileManager struct {
@@ -19,6 +20,8 @@ func (fm FileManager) ReadLines() ([]string, error)  {
 		return nil, errors.New("Failed to open file")
 	}
 
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)	
 
 	var lines []string
@@ -30,11 +33,11 @@ func (fm FileManager) ReadLines() ([]string, error)  {
 	err = scanner.Err()
 
 	if err != nil {
-		file.Close()
+		// file.Close()
 		return nil, errors.New("Failed to open file")
 	}
 
-	file.Close()
+	// file.Close()
 
 	return lines, nil
 }
@@ -46,11 +49,18 @@ func (fm FileManager) WriteResult(data any) error {
 		return errors.New("Failed to return file")
 	}
 
+	// when executing a function with defer
+	// Go will not execute the code right away but
+	// only when the surrounding func or method finished
+	// either because of an error or because it is done
+	defer file.Close()
+
+	time.Sleep(3 * time.Second)
+
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(data)
 
 	if err != nil {
-		file.Close()
 		return errors.New("Failed to convert data to JSON")
 	}
 
